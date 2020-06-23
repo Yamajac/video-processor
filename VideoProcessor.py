@@ -4,6 +4,8 @@ import cv2
 import pytesseract
 from PIL import Image, ImageDraw, ImageFont
 pytesseract.pytesseract.tesseract_cmd = r'C:\Users\Charlotte\AppData\Local\Tesseract-OCR\tesseract.exe'
+# You have to actually install tesseract. You have to install the python module AND the the exe. 
+# This then tells the module where to find the exe. 
 
 
 # https://www.pyimagesearch.com/2014/09/15/python-compare-two-images/
@@ -52,17 +54,27 @@ def grabVideoInfo(week):
         perk = ""
         map = ""
         
-        battery = cv2.imread("ScriptStuff/Icons/perk.png")
+        perk = cv2.imread("ScriptStuff/Icons/perk.png")
         yama = cv2.imread("ScriptStuff/Icons/yama.png")
         
+        
+        # Sometimes I start on the previous death/win screen
+        # So if we start from frame 0, it will find the previous map
+        # This skips like 4ish minutes into the video which should be 
+        # well into whatever map/perk I settled on
         for i in range(0, 14000):
             vidcap.grab()
         while True:
+            # We only want to check if the image is on screen every about 5 seconds
+            # Might have to shorten this if it's not 100% reliable
+            # But it hasn't had any issues yet so seems good.
+            # I probably have the trader screen open for more than 5 seconds at once
+            # And the end screen is definitely always open for more than 5 seconds
             for i in range(0,300):
                 vidcap.grab()
             success,image = vidcap.read()
             if len(perk) == 0:   
-                err = mse(image[154:181,251:308],battery)
+                err = mse(image[154:181,251:308],perk)
                 print("Checking episode perk {0}... difference: {1}".format(MKV, err))
                 if(err < 1000):
                     perk = pytesseract.image_to_string(Image.fromarray(image[90:147, 234:660]), lang='eng')
